@@ -36,7 +36,7 @@ export default function ChartForm() {
       .required("Chart type is required"),
   });
 
-  const handleSubmit = (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting, resetForm }) => {
     const labelsArray = values.labels.split(",").map((item) => item.trim());
     let legend = values.legend;
     const dataArray = values.data
@@ -63,6 +63,7 @@ export default function ChartForm() {
     );
     dispatch(setChartType(values.chartType));
     setSubmitting(false);
+    resetForm()
   };
 
   return (
@@ -76,6 +77,7 @@ export default function ChartForm() {
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        
       >
         {({ isSubmitting }) => (
           <Form>
@@ -117,7 +119,7 @@ export default function ChartForm() {
               />
             </div>
             <div>
-              <Field name="chartType" as="select" className="form-control">
+              <Field name="chartType" as="select" className="form-select">
                 <option value="bar">Bar Chart</option>
                 <option value="pie">Pie Chart</option>
               </Field>
