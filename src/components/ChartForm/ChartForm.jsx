@@ -15,6 +15,9 @@ export default function ChartForm() {
         "At least two labels required (comma-separated)",
         (value) => value.split(",").filter((item) => item.trim()).length >= 2
       ),
+    legend: Yup.string()
+      .required("Legend is required in Chart")
+      .min(3, "Minimum characters for Legend should be 3"),
     data: Yup.string()
       .required("Data values are required")
       .test(
@@ -22,7 +25,10 @@ export default function ChartForm() {
         "At least two numeric values required (comma-separated)",
         (value) => {
           const numbers = value.split(",").map((num) => num.trim());
-          return numbers.length >= 2 && numbers.every((num) => !isNaN(num) && num !== "");
+          return (
+            numbers.length >= 2 &&
+            numbers.every((num) => !isNaN(num) && num !== "")
+          );
         }
       ),
     chartType: Yup.string()
@@ -31,7 +37,8 @@ export default function ChartForm() {
   });
 
   const handleSubmit = (values, { setSubmitting }) => {
-    const labelsArray = values.labels.split(",").map((label) => label.trim());
+    const labelsArray = values.labels.split(",").map((item) => item.trim());
+    let legend = values.legend;
     const dataArray = values.data
       .split(",")
       .map((num) => parseInt(num.trim(), 10));
@@ -41,6 +48,7 @@ export default function ChartForm() {
         labels: labelsArray,
         datasets: [
           {
+            label: legend,
             data: dataArray,
             backgroundColor: [
               "#FF6384",
@@ -61,8 +69,9 @@ export default function ChartForm() {
     <div className="chart-form">
       <Formik
         initialValues={{
-          labels: "", 
-          data: "", 
+          labels: "",
+          legend: "",
+          data: "",
           chartType: "bar",
         }}
         validationSchema={validationSchema}
@@ -81,6 +90,17 @@ export default function ChartForm() {
                 component="div"
                 className="text-danger py-3"
                 name="labels"
+              />
+              <Field
+                name="legend"
+                type="text"
+                placeholder="Enter Legend for Chart"
+                className="my-3 form-control"
+              />
+              <ErrorMessage
+                component="div"
+                className="text-danger py-3"
+                name="legend"
               />
             </div>
             <div>
@@ -108,7 +128,11 @@ export default function ChartForm() {
               />
             </div>
             <div>
-              <button disabled={isSubmitting} type="submit" className="mt-4 btn btn-primary">
+              <button
+                disabled={isSubmitting}
+                type="submit"
+                className="mt-4 btn btn-primary"
+              >
                 {isSubmitting ? "Generating..." : "Generate Chart"}
               </button>
             </div>
