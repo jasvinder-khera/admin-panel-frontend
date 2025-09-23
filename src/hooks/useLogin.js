@@ -1,33 +1,52 @@
-import api, { login } from "@/services/api";
+import { login } from '@/services/api'
 import React, { useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { setTokens } from '@/context';
+import { useMaterialTailwindController } from '@/context';
 
 export default function useLogin() {
-    const[error,setError] = useState(null)
-    const[isLoading,setIsLoading] = useState(false)
+     const [, dispatch] = useMaterialTailwindController();
+    const [error, setError] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
     const navigate = useNavigate()
 
-    const handleSubmit = async (formData)=>{
-        setError(null)
+    const handleSubmit = async (e) =>{
+        e.preventDefault()
         setIsLoading(true)
-        console.log(error)
-        
-        if(!formData.email || !formData.password){
-            setError("Please fill all the details first")
+        setError(null)
+
+        const formData = new FormData(e.target)
+        const email = formData.get("email")
+        const password = formData.get("password")
+
+        if(!email || !password){
+            setError("Please fill out all Details")
             setIsLoading(false)
-            return
+            return 
         }
+
         try {
-            let res = await login(formData.email,formData.password)
-            console.log("API response:", res.data)
-            setIsLoading(false)
+            const res = await login({email,password})
+            // console.log("RES:",res.data)
+            // console.log("token:",res.data.access)
+            // console.log("token:",res.data.refresh)
+            // const refreshToken = localStorage.setItem("refreshToken", res?.data.refresh)
+            // const accessToken = localStorage.setItem("accessToken", res?.data.access)
+
+             setTokens(dispatch, {
+          accessToken: res?.data.access,
+          refreshToken: res?.data.refresh,
+        });
+            toast.success("Logged in successfully")
+            navigate('/dashboard/home', { replace: true })
+
         } catch (error) {
-            setError(error.message)
-        }finally{
-            setIsLoading(false)
-            return
+            console.log(error)
+            setError(error)
+            toast.error(error.message)
         }
-        
+
     }
-  return {handleSubmit, error, isLoading}
+  return {handleSubmit, error, isLoading, setIsLoading}
 }

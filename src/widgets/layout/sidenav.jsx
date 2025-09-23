@@ -1,21 +1,29 @@
 import PropTypes from "prop-types";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+
 import {
   Button,
   IconButton,
   Typography,
 } from "@material-tailwind/react";
-import { useMaterialTailwindController, setOpenSidenav } from "@/context";
+import { useMaterialTailwindController, setOpenSidenav, clearTokens } from "@/context";
 
 export function Sidenav({ brandImg, brandName, routes }) {
   const [controller, dispatch] = useMaterialTailwindController();
+  const isAuthenticated = controller
   const { sidenavColor, sidenavType, openSidenav } = controller;
   const sidenavTypes = {
     dark: "bg-gradient-to-br from-gray-800 to-gray-900",
     white: "bg-white shadow-sm",
     transparent: "bg-transparent",
   };
+  const navigate = useNavigate()
+  const logoutFN =()=>{
+    clearTokens(dispatch)
+    navigate('/')
+  }
 
   return (
     <aside
@@ -49,10 +57,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
               <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
             </IconButton>
           </div>
-
-      <div className="m-4">
+      <div>
+      <div className="m-4 mb-0">
         {routes.map(({ layout, title, pages }, key) => (
-          <ul key={key} className="mb-4 flex flex-col gap-1">
+          <ul key={key} className="flex flex-col gap-1">
             {title && (
               <li className="mx-3.5 mt-4 mb-2">
                 <Typography
@@ -92,8 +100,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 </NavLink>
               </li>
             ))}
+           
           </ul>
         ))}
+      </div>
+       {isAuthenticated ?<button onClick={logoutFN} className=" text-[#607d8b] text-lg mx-5 rounded-lg p-2 hover:bg-gray-200 flex gap-3 items-center w-[85%]"> <ArrowRightOnRectangleIcon className="h-5 w-7 text-[#607d8b] font-medium"/> <span className="text-[16px] font-medium">Log Out</span></button>: ""}
       </div>
     </aside>
   );
