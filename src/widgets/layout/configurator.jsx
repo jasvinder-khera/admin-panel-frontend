@@ -81,7 +81,8 @@ export function Configurator() {
         <IconButton
           variant="text"
           color="blue-gray"
-          onClick={() => setOpenConfigurator(dispatch, false)}
+          onClick={() => dispatch({ type: "OPEN_CONFIGURATOR", value: false })}
+
         >
           <XMarkIcon strokeWidth={2.5} className="h-5 w-5" />
         </IconButton>
@@ -100,7 +101,7 @@ export function Configurator() {
                 } ${
                   sidenavColor === color ? "border-black" : "border-transparent"
                 }`}
-                onClick={() => setSidenavColor(dispatch, color)}
+                onClick={() => dispatch({ type: "SIDENAV_COLOR", value: color })}
               />
             ))}
           </div>
@@ -115,21 +116,22 @@ export function Configurator() {
           <div className="mt-3 flex items-center gap-2">
             <Button
               variant={sidenavType === "dark" ? "gradient" : "outlined"}
-              onClick={() => setSidenavType(dispatch, "dark")}
-            >
+              onClick={() => dispatch({ type: "SIDENAV_TYPE", value: "dark" })}>
+
               Dark
             </Button>
             <Button
               variant={sidenavType === "transparent" ? "gradient" : "outlined"}
-              onClick={() => setSidenavType(dispatch, "transparent")}
+              onClick={() => dispatch({ type: "SIDENAV_TYPE", value: "transparent" })}
+
+            
             >
               Transparent
             </Button>
             <Button
               variant={sidenavType === "white" ? "gradient" : "outlined"}
-              onClick={() => setSidenavType(dispatch, "white")}
-            >
-              White
+            onClick={() => dispatch({ type: "SIDENAV_TYPE", value: "white" })}
+             > White
             </Button>
           </div>
         </div>
@@ -142,7 +144,7 @@ export function Configurator() {
             <Switch
               id="navbar-fixed"
               value={fixedNavbar}
-              onChange={() => setFixedNavbar(dispatch, !fixedNavbar)}
+              onChange={()=>dispatch({type:"FIXED_NAVBAR", value: !fixedNavbar})}
             />
           </div>
           <hr />
