@@ -3,15 +3,13 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { setTokens } from '@/context';
-import { useMaterialTailwindController } from '@/context';
 
 export default function useLogin() {
-     const [, dispatch] = useMaterialTailwindController();
     const [error, setError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const navigate = useNavigate()
 
-    const handleSubmit = async (e) =>{
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setIsLoading(true)
         setError(null)
@@ -27,26 +25,27 @@ export default function useLogin() {
         }
 
         try {
-            const res = await login({email,password})
-            // console.log("RES:",res.data)
-            // console.log("token:",res.data.access)
-            // console.log("token:",res.data.refresh)
-            // const refreshToken = localStorage.setItem("refreshToken", res?.data.refresh)
-            // const accessToken = localStorage.setItem("accessToken", res?.data.access)
-
-             setTokens(dispatch, {
-          accessToken: res?.data.access,
-          refreshToken: res?.data.refresh,
-        });
+            const res = await login({email, password})
+           
+            // Use the updated setTokens function (no need to pass dispatch)
+            setTokens({
+                accessToken: res?.data.access,
+                refreshToken: res?.data.refresh,
+            });
+            
             toast.success("Logged in successfully")
             navigate('/dashboard/home', { replace: true })
 
         } catch (error) {
             console.log(error)
-            setError(error)
-            toast.error(error.message)
+            // Extract error message from response if available
+            const errorMessage = error.response?.data?.message || error.message || "Login failed"
+            setError(errorMessage)
+            toast.error(errorMessage)
+        } finally {
+            setIsLoading(false)
         }
-
     }
-  return {handleSubmit, error, isLoading, setIsLoading}
+
+    return { handleSubmit, error, isLoading, setIsLoading }
 }

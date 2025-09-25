@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 export const MaterialTailwind = React.createContext(null);
 MaterialTailwind.displayName = "MaterialTailwindContext";
 
+// Create a ref to store the latest dispatch function
+let currentDispatch = null;
+
 export function reducer(state, action) {
   switch (action.type) {
     case "OPEN_SIDENAV": {
@@ -66,6 +69,11 @@ export function MaterialTailwindControllerProvider({ children }) {
 
   const [controller, dispatch] = React.useReducer(reducer, initialState);
 
+  // Update the currentDispatch ref whenever dispatch changes
+  React.useEffect(() => {
+    currentDispatch = dispatch;
+  }, [dispatch]);
+
   // Initialize tokens from localStorage on component mount
   React.useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -111,51 +119,69 @@ export function useMaterialTailwindController() {
   return context;
 }
 
+// Export function to get the current dispatch for API layer
+export const getCurrentDispatch = () => currentDispatch;
+
 // Authentication action creators
-export const setTokens = (dispatch, tokens) => {
-  const { accessToken, refreshToken } = tokens;
-  
-  // Save to localStorage
-  localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
-  
-  // Update context
-  dispatch({ 
-    type: "SET_TOKENS", 
-    value: { accessToken, refreshToken } 
-  });
+export const setTokens = (tokens) => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) {
+    const { accessToken, refreshToken } = tokens;
+    
+    // Save to localStorage
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    
+    // Update context
+    dispatch({ 
+      type: "SET_TOKENS", 
+      value: { accessToken, refreshToken } 
+    });
+  }
 };
 
-export const clearTokens = (dispatch) => {
-  // Remove from localStorage
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  
-  // Update context
-  dispatch({ type: "CLEAR_TOKENS" });
+export const clearTokens = () => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) {
+    // Remove from localStorage
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    
+    // Update context
+    dispatch({ type: "CLEAR_TOKENS" });
+  }
 };
 
-export const checkAuthentication = (dispatch) => {
-  const refreshToken = localStorage.getItem("refreshToken");
-  dispatch({ 
-    type: "SET_AUTHENTICATED", 
-    value: !!refreshToken 
-  });
+// Original action creators (updated to work without passing dispatch)
+export const setOpenSidenav = (value) => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) dispatch({ type: "OPEN_SIDENAV", value });
 };
 
-// Original action creators
-export const setOpenSidenav = (dispatch, value) =>
-  dispatch({ type: "OPEN_SIDENAV", value });
-export const setSidenavType = (dispatch, value) =>
-  dispatch({ type: "SIDENAV_TYPE", value });
-export const setSidenavColor = (dispatch, value) =>
-  dispatch({ type: "SIDENAV_COLOR", value });
-export const setTransparentNavbar = (dispatch, value) =>
-  dispatch({ type: "TRANSPARENT_NAVBAR", value });
-export const setFixedNavbar = (dispatch, value) =>
-  dispatch({ type: "FIXED_NAVBAR", value });
-export const setOpenConfigurator = (dispatch, value) =>
-  dispatch({ type: "OPEN_CONFIGURATOR", value });
+export const setSidenavType = (value) => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) dispatch({ type: "SIDENAV_TYPE", value });
+};
+
+export const setSidenavColor = (value) => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) dispatch({ type: "SIDENAV_COLOR", value });
+};
+
+export const setTransparentNavbar = (value) => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) dispatch({ type: "TRANSPARENT_NAVBAR", value });
+};
+
+export const setFixedNavbar = (value) => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) dispatch({ type: "FIXED_NAVBAR", value });
+};
+
+export const setOpenConfigurator = (value) => {
+  const dispatch = getCurrentDispatch();
+  if (dispatch) dispatch({ type: "OPEN_CONFIGURATOR", value });
+};
 
 MaterialTailwindControllerProvider.displayName = "/src/context/index.jsx";
 
