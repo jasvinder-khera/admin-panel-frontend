@@ -22,7 +22,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const navigate = useNavigate()
   const logoutFN =()=>{
     clearTokens(dispatch)
-    navigate('/')
+    navigate('/sign-in')
   }
 
   return (
